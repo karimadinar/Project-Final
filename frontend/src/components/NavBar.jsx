@@ -33,7 +33,7 @@ const NavBar = () => {
   ];
 
   const adminLinks = [
-    { id: 1, to: '/admin', label: 'Admin' },
+    { id: 1, to: '/Dashbord', label: 'Dashbord' },
   ];
 
   let Links = guestLinks;

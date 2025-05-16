@@ -1,125 +1,95 @@
-import React, { useState } from "react";
-import { format } from "date-fns";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const ReservationBox = ({ price }) => {
-  const [dates, setDates] = useState({
-    startDate: "",
-    endDate: ""
-  });
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
-  const location = useLocation();
+const ReservationBox = ({ houseId, price }) => {
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [message, setMessage] = useState('');
+  useEffect(() => {
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diffTime = end - start;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      if (diffDays > 0) {
+        setTotalPrice(diffDays * price);
+      } else {
+        setTotalPrice(0);
+      }
+    } else {
+      setTotalPrice(0);
+    }
+  }, [startDate, endDate, price]);
 
-  const isLoggedIn = !!localStorage.getItem("token");
+  const handleReservation = async () => {
+    setMessage('');
+    if (!startDate || !endDate) {
+      setMessage('Veuillez choisir les deux dates.');
+      return;
+    }
+    if (new Date(endDate) <= new Date(startDate)) {
+      setMessage('La date de fin doit être après la date de début.');
+      return;
+    }
 
-  const handleDateChange = (e) => {
-    const { name, value } = e.target;
-    setDates(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError("");
-
-    if (!isLoggedIn) {
-      sessionStorage.setItem("tempReservation", JSON.stringify({
-        dates,
-        from: location.pathname
-      }));
-
-      navigate("/login", {
-        state: {
-          from: location.pathname,
-          message: "Connectez-vous pour compléter votre réservation"
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post('http://localhost:3000/api/reservations', {
+        houseId,
+        startDate,
+        endDate,
+        totalPrice,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`, 
         }
       });
-      return;
+
+      setMessage('Réservation réussie !');
+      setStartDate('');
+      setEndDate('');
+      setTotalPrice(0);
+      console.log('Réservation response:', response.data);
+    } catch (error) {
+      console.error('Erreur réservation détail:', error.response ? error.response.data : error.message);
+      setMessage('Erreur lors de la réservation.');
     }
-
-    if (!dates.startDate || !dates.endDate) {
-      setError("Veuillez sélectionner les deux dates");
-      return;
-    }
-
-    if (new Date(dates.endDate) <= new Date(dates.startDate)) {
-      setError("La date de fin doit être après la date de début");
-      return;
-    }
-
-    submitReservation();
-  };
-
-  const submitReservation = () => {
-    const days = Math.ceil(
-      (new Date(dates.endDate) - new Date(dates.startDate)) / (1000 * 60 * 60 * 24)
-    );
-    const total = days * price;
-
-    alert(`Réservation confirmée du ${format(new Date(dates.startDate), "dd/MM/yyyy")} au ${format(new Date(dates.endDate), "dd/MM/yyyy")}\nTotal: ${total}€`);
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-md max-w-md mx-auto mt-6 sticky top-6">
-      <h3 className="text-xl font-bold mb-4 text-gray-800">Reserver</h3>
-      
-      {price && (
-        <div className="mb-4">
-          <span className="text-2xl font-bold text-blue-600">{price}</span>
-          <span className="text-gray-500"> / nuit</span>
-        </div>
-      )}
+    <div className="bg-white p-6 rounded-xl shadow-md max-w-md mx-auto">
+      <h2 className="text-xl font-semibold mb-4">Réserver cette maison</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-gray-600 mb-1">Date d'arrivée</label>
-          <input
-            type="date"
-            name="startDate"
-            value={dates.startDate}
-            onChange={handleDateChange}
-            min={format(new Date(), "yyyy-MM-dd")}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
-            required
-          />
-        </div>
+      <label className="block mb-2 font-medium">Start Date:</label>
+      <input
+        type="date"
+        className="w-full border rounded p-2 mb-4"
+        value={startDate}
+        onChange={(e) => setStartDate(e.target.value)}
+      />
 
-        <div>
-          <label className="block text-gray-600 mb-1">Date de départ</label>
-          <input
-            type="date"
-            name="endDate"
-            value={dates.endDate}
-            onChange={handleDateChange}
-            min={dates.startDate || format(new Date(), "yyyy-MM-dd")}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
-            required
-          />
-        </div>
+      <label className="block mb-2 font-medium">End Date:</label>
+      <input
+        type="date"
+        className="w-full border rounded p-2 mb-4"
+        value={endDate}
+        onChange={(e) => setEndDate(e.target.value)}
+      />
 
-        {error && (
-          <div className="text-red-500 text-sm">{error}</div>
-        )}
+      <p className="mb-4 font-semibold">Total Price: {totalPrice > 0 ? `${totalPrice} MAD` : 'N/A'}</p>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition"
-        >
-          {isLoggedIn ? "Confirmer la réservation" : " Reserver"}
-        </button>
-      </form>
+      <button
+        onClick={handleReservation}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
+      >
+        Réserver
+      </button>
 
-      {isLoggedIn && dates.startDate && dates.endDate && (
-        <div className="mt-4 text-sm text-gray-600">
-          <div className="flex justify-between py-2 border-b">
-            <span>{price} {Math.ceil((new Date(dates.endDate) - new Date(dates.startDate)) / (1000 * 60 * 60 * 24))} nuits</span>
-            <span>{price * Math.ceil((new Date(dates.endDate) - new Date(dates.startDate)) / (1000 * 60 * 60 * 24))}</span>
-          </div>
-          <div className="flex justify-between font-bold py-2">
-            <span>Total</span>
-            <span>{price * Math.ceil((new Date(dates.endDate) - new Date(dates.startDate)) / (1000 * 60 * 60 * 24))}€</span>
-          </div>
-        </div>
+      {message && (
+        <p className={`mt-4 font-semibold ${message.includes('Erreur') ? 'text-red-600' : 'text-green-600'}`}>
+          {message}
+        </p>
       )}
     </div>
   );

@@ -16,6 +16,8 @@ import SignUp from './SignUp';
 import AddFavorite from './AddFavorite';
 import ProtectedRoute from './ProtectedRoute';
 import HouseForm from './HouseForm';
+import ReservatinAdmin from './ReservatinAdmin';
+import Dashbord from './Dashbord';
 
 const Rou = () => {
   const { userData, loading } = useUserContext();
@@ -27,6 +29,14 @@ const Rou = () => {
   if (userRole === 'admin') {
     return (
       <Routes>
+         <Route
+          path="/Dashbord"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <Dashbord />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/admin"
           element={
@@ -40,6 +50,14 @@ const Rou = () => {
           element={
             <ProtectedRoute requiredRole="admin">
               <HouseForm />
+            </ProtectedRoute>
+          }
+        />
+          <Route
+          path="/ReservatinAdmin"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <ReservatinAdmin />
             </ProtectedRoute>
           }
         />

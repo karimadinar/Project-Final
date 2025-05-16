@@ -102,7 +102,7 @@ const HouseDetails = () => {
         {/* Right Column */}
         <div className="lg:col-span-1">
           <div className="sticky top-6">
-            <ReservationBox price={house.price} />
+            <ReservationBox houseId={house._id} price={Number(house.price)} />
           </div>
         </div>
       </div>
