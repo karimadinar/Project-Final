@@ -1,0 +1,47 @@
+[
+  {
+    "name": "John Doe",
+    "image": "/images/jon.avif",
+    "designation": "CEO",
+    "socialLinks": {
+      "facebook": "https://facebook.com/johndoe",
+      "twitter": "https://twitter.com/johndoe",
+      "linkedin": "https://linkedin.com/in/johndoe",
+      "instagram": "https://instagram.com/johndoe"
+    }
+  },
+  {
+    "name": "Jane Smith",
+    "image": "/images/jan.jpg",
+    "designation": "Developer",
+    "socialLinks": {
+      "facebook": "https://facebook.com/janesmith",
+      "twitter": "https://twitter.com/janesmith",
+      "linkedin": "https://linkedin.com/in/janesmith",
+      "instagram": "https://instagram.com/janesmith"
+    }
+  },
+
+  {
+    "name": "Sara El Amrani",
+    "image": "/images/sara.avif",
+    "designation": "Marketing Manager",
+    "socialLinks": {
+      "facebook": "https://facebook.com/saraelamrani",
+      "twitter": "https://twitter.com/saraelamrani",
+      "linkedin": "https://linkedin.com/in/saraelamrani",
+      "instagram": "https://instagram.com/saraelamrani"
+    }
+  },
+  {
+    "name": "Nour Zahraoui",
+    "image": "/images/nour.jpg",
+    "designation": "UI/UX Designer",
+    "socialLinks": {
+      "facebook": "https://facebook.com/nourzahraoui",
+      "twitter": "https://twitter.com/nourzahraoui",
+      "linkedin": "https://linkedin.com/in/nourzahraoui",
+      "instagram": "https://instagram.com/nourzahraoui"
+    }
+  }
+]

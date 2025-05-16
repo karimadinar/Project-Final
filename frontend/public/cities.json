@@ -1,0 +1,23 @@
+[
+
+  {
+    "id": 1,
+    "name": "Casablanca",
+    "image": "/images/homecasa.jpg"
+  },
+  {
+    "id": 2,
+    "name": "Marrakech",
+    "image": "/images/hm.jpg"
+  },
+  {
+    "id": 3,
+    "name": "Fes",
+    "image": "/images/homefes.jpg"
+  },
+  {
+    "id": 4,
+    "name": "Agadir",
+    "image": "/images/homeaga.jpg"
+  }
+]
