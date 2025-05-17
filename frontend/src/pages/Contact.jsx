@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { FaPhone, FaMapMarkerAlt, FaEnvelope } from 'react-icons/fa';
 import SocialMedia from './SocialMedia';
 import CityForm from '../components/HouseForm';
@@ -11,6 +12,8 @@ const Contact = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,16 +26,24 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+    setSubmitMessage('');
+    setIsSuccess(false);
+
     try {
-      alert("Message envoyé avec succès!");
-      setFormData({
-        name: '',
-        email: '',
-        message: ''
-      });
+      const response = await axios.post('http://localhost:3000/api/contact', formData);
+
+      if (response.status === 200) {
+        setIsSuccess(true);
+        setSubmitMessage("Message envoyé avec succès!");
+        setFormData({ name: '', email: '', message: '' });
+      } else {
+        setIsSuccess(false);
+        setSubmitMessage("Erreur lors de l'envoi du message");
+      }
     } catch (error) {
-      alert("Erreur lors de l'envoi du message");
+      console.error("Error:", error);
+      setIsSuccess(false);
+      setSubmitMessage("Erreur lors de l'envoi du message");
     } finally {
       setIsSubmitting(false);
     }
@@ -96,9 +107,14 @@ const Contact = () => {
               disabled={isSubmitting}
               className={`w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 text-sm ${isSubmitting ? 'opacity-70' : ''}`}
             >
-             Send
+              Send
             </button>
           </form>
+          {submitMessage && (
+            <p className={`mt-2 text-center ${isSuccess ? 'text-green-600' : 'text-red-600'}`}>
+              {submitMessage}
+            </p>
+          )}
         </div>
 
         {/* Infos contact compactes */}
@@ -113,7 +129,7 @@ const Contact = () => {
           </div>
           <div className="flex items-center justify-center space-x-2">
             <FaMapMarkerAlt className="text-pink-600" />
-            <span className="text-sm">Casablanca</span>
+            <span className="text-sm">Agadir</span>
           </div>
         </div>
 

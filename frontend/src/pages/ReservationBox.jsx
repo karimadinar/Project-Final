@@ -6,11 +6,29 @@ const ReservationBox = ({ houseId, price }) => {
   const [endDate, setEndDate] = useState('');
   const [totalPrice, setTotalPrice] = useState(0);
   const [message, setMessage] = useState('');
+  const [availabilityMessage, setAvailabilityMessage] = useState('');
+  const [reservedDates, setReservedDates] = useState([]);
+
+  useEffect(() => {
+    const fetchReservedDates = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get('http://localhost:3000/api/reservations/reserved-dates', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setReservedDates(res.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchReservedDates();
+  }, []);
+
   useEffect(() => {
     if (startDate && endDate) {
       const start = new Date(startDate);
       const end = new Date(endDate);
-      const diffTime = end - start;
+      const diffTime = end.getTime() - start.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       if (diffDays > 0) {
         setTotalPrice(diffDays * price);
@@ -20,46 +38,83 @@ const ReservationBox = ({ houseId, price }) => {
     } else {
       setTotalPrice(0);
     }
+    setAvailabilityMessage(''); 
   }, [startDate, endDate, price]);
+
+  const isRangeAvailable = (start, end) => {
+    for (const { startDate, endDate } of reservedDates) {
+      const reservedStart = new Date(startDate);
+      const reservedEnd = new Date(endDate);
+      if (
+        (start >= reservedStart && start <= reservedEnd) ||
+        (end >= reservedStart && end <= reservedEnd) ||
+        (start <= reservedStart && end >= reservedEnd)
+      ) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const checkAvailability = () => {
+    if (!startDate || !endDate) {
+      setAvailabilityMessage('');
+      return;
+    }
+    if (new Date(endDate) <= new Date(startDate)) {
+      setAvailabilityMessage('La date de fin doit être après la date de début.');
+      return;
+    }
+    if (isRangeAvailable(new Date(startDate), new Date(endDate))) {
+      setAvailabilityMessage('Les dates sont disponibles pour la réservation.');
+    } else {
+      setAvailabilityMessage('Ces dates sont déjà réservées. Veuillez choisir d\'autres dates.');
+    }
+  };
+
+  useEffect(() => {
+    checkAvailability();
+  }, [startDate, endDate, reservedDates]);
 
   const handleReservation = async () => {
     setMessage('');
     if (!startDate || !endDate) {
-      setMessage('Veuillez choisir les deux dates.');
+      setMessage('Please choose both dates.');
       return;
     }
     if (new Date(endDate) <= new Date(startDate)) {
-      setMessage('La date de fin doit être après la date de début.');
+      setMessage('The end date must be after the start date.');
       return;
     }
-
+    if (!isRangeAvailable(new Date(startDate), new Date(endDate))) {
+      setMessage("These dates are already booked. Please choose other dates.");
+      return;
+    }
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:3000/api/reservations', {
+      await axios.post('http://localhost:3000/api/reservations', {
         houseId,
         startDate,
         endDate,
         totalPrice,
       }, {
         headers: {
-          Authorization: `Bearer ${token}`, 
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-
-      setMessage('Réservation réussie !');
+      setMessage('Reservation successful.');
       setStartDate('');
       setEndDate('');
       setTotalPrice(0);
-      console.log('Réservation response:', response.data);
+      setAvailabilityMessage('');
     } catch (error) {
-      console.error('Erreur réservation détail:', error.response ? error.response.data : error.message);
-      setMessage('Erreur lors de la réservation.');
+      setMessage('Reservation reject!');
     }
   };
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-md max-w-md mx-auto">
-      <h2 className="text-xl font-semibold mb-4">Réserver cette maison</h2>
+      <h2 className="text-xl font-semibold mb-4">Book this house</h2>
 
       <label className="block mb-2 font-medium">Start Date:</label>
       <input
@@ -78,6 +133,12 @@ const ReservationBox = ({ houseId, price }) => {
       />
 
       <p className="mb-4 font-semibold">Total Price: {totalPrice > 0 ? `${totalPrice} MAD` : 'N/A'}</p>
+
+      {availabilityMessage && (
+        <p className={`mb-4 font-semibold ${availabilityMessage.includes('réservées') || availabilityMessage.includes('doit') ? 'text-red-600' : 'text-green-600'}`}>
+          {availabilityMessage}
+        </p>
+      )}
 
       <button
         onClick={handleReservation}

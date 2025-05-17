@@ -71,14 +71,18 @@ const HouseForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Amenities:", formData.amenities);
+   console.log("Nearby Universities:", formData.nearby_universities);
+   console.log("Distance to University:", formData.distance_to_university);
 
-    // رفع الصور
+
+  
     const mainPicUrl = formData.main_picture ? await uploadImageToCloudinary(formData.main_picture) : null;
     const pic1Url = formData.picture1 ? await uploadImageToCloudinary(formData.picture1) : null;
     const pic2Url = formData.picture2 ? await uploadImageToCloudinary(formData.picture2) : null;
     const pic3Url = formData.picture3 ? await uploadImageToCloudinary(formData.picture3) : null;
 
-    // تجهيز البيانات
+    
     const newHouse = {
       city: formData.city,
       area: formData.area,
@@ -140,7 +144,7 @@ const HouseForm = () => {
           type="submit"
           className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-200"
         >
-          Submit
+          Add
         </button>
       </form>
     </div>
