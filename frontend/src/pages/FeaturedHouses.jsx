@@ -6,9 +6,14 @@ export default function FeaturedHouses() {
   const [houses, setHouses] = useState([]);
 
   useEffect(() => {
-    axios.get("/Data.json")
+    axios
+      .get("http://localhost:3000/api/houses") 
       .then((res) => {
-        setHouses(res.data.slice(0, 4));
+        if (Array.isArray(res.data)) {
+          setHouses(res.data.slice(0, 4)); // Only get 4
+        } else {
+          console.error("Data is not an array:", res.data);
+        }
       })
       .catch((err) => {
         console.error("Error fetching houses:", err);
@@ -17,20 +22,16 @@ export default function FeaturedHouses() {
 
   return (
     <div className="py-12 px-4 md:px-12 bg-white">
-      {/* <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
-        Featured <span className="text-blue-900">Houses</span>
-      </h2> */}
-
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {houses.map((house) => (
           <div
-            key={house.id}
+            key={house._id}
             className="bg-gray-100 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition"
           >
             <img
-              src={house.images.main_image}
+              src={house.main_picture}
               alt={house.city}
-              className="w-full h-40 object-cover" // تعديل الحجم
+              className="w-full h-40 object-cover"
             />
             <div className="p-4">
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -43,7 +44,7 @@ export default function FeaturedHouses() {
                 {house.price}
               </span>
               <Link
-                to="/Houses"
+                to={`/houses/${house._id}`}
                 className="inline-block bg-pink-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
               >
                 View More

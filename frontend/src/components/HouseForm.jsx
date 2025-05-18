@@ -29,7 +29,7 @@ const HouseForm = () => {
     { label: 'Bedrooms', name: 'bedrooms', type: 'number' },
     { label: 'Amenities (comma separated)', name: 'amenities', type: 'text' },
     { label: 'Nearby Universities', name: 'nearby_universities', type: 'text' },
-    { label: 'Distance to University', name: 'distance_to_university', type: 'text' },
+    { label: 'Distance to University (in km)', name: 'distance_to_university', type: 'text' },
     { label: 'Main Picture', name: 'main_picture', type: 'file' },
     { label: 'Picture 1', name: 'picture1', type: 'file' },
     { label: 'Picture 2', name: 'picture2', type: 'file' },
@@ -38,23 +38,16 @@ const HouseForm = () => {
 
   const handleChange = (e) => {
     const { name, value, type, files, checked } = e.target;
-    if (type === 'file') {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: files[0],
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value,
-      }));
-    }
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : type === 'file' ? files[0] : value,
+    }));
   };
 
   const uploadImageToCloudinary = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "dev_preset"); // بدلها لو سميتي preset بشي اسم آخر
+    formData.append("upload_preset", "dev_preset"); // Remplace par ton preset si besoin
 
     try {
       const res = await fetch("https://api.cloudinary.com/v1_1/dame2c0yb/image/upload", {
@@ -71,25 +64,19 @@ const HouseForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Amenities:", formData.amenities);
-   console.log("Nearby Universities:", formData.nearby_universities);
-   console.log("Distance to University:", formData.distance_to_university);
 
-
-  
     const mainPicUrl = formData.main_picture ? await uploadImageToCloudinary(formData.main_picture) : null;
     const pic1Url = formData.picture1 ? await uploadImageToCloudinary(formData.picture1) : null;
     const pic2Url = formData.picture2 ? await uploadImageToCloudinary(formData.picture2) : null;
     const pic3Url = formData.picture3 ? await uploadImageToCloudinary(formData.picture3) : null;
 
-    
     const newHouse = {
       city: formData.city,
       area: formData.area,
       type: formData.type,
       price: formData.price,
       bedrooms: formData.bedrooms,
-      amenities: formData.amenities.split(',').map(a => a.trim()),
+      amenities: formData.amenities.split(',').map((a) => a.trim()),
       nearby_universities: formData.nearby_universities,
       distance_to_university: formData.distance_to_university,
       shared: formData.shared,
@@ -100,8 +87,8 @@ const HouseForm = () => {
     };
 
     try {
-      await axios.post('http://localhost:3000/api/Houses', newHouse);
-      navigate('/admin');
+      await axios.post('http://localhost:3000/api/houses', newHouse);
+      navigate('/HousesAdmin');
     } catch (error) {
       console.error('Error adding house:', error);
     }

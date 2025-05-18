@@ -5,7 +5,7 @@ const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);  // نضيف حالة loading
+  const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -15,7 +15,7 @@ export const UserProvider = ({ children }) => {
 
     if (token && userName && userEmail && userRole) {
       setUserData({ name: userName, email: userEmail, role: userRole, token });
-      setLoading(false);  // انتهاء التحميل هنا
+      setLoading(false);  
     } else if (token) {
       axios
         .get('http://localhost:3000/api/users', {

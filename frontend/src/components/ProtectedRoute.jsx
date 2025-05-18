@@ -7,16 +7,16 @@ const ProtectedRoute = ({ requiredRole, children }) => {
   const { userData, loading } = useUserContext();
 
   if (loading) {
-    return <div>Loading...</div>;  // أو سبنر جميل
+    return <div>Loading...</div>;  
   }
 
   if (!userData) {
-    // المستخدم غير مسجل الدخول
+
     return <Navigate to="/login" replace />;
   }
 
   if (requiredRole && userData.role.toLowerCase() !== requiredRole.toLowerCase()) {
-    // مستخدم بدون الصلاحية المطلوبة
+    
     return (
       <div style={{ padding: 20, textAlign: 'center' }}>
         <h1>Access Denied</h1>

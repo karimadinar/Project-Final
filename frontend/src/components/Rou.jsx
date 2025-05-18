@@ -2,7 +2,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useUserContext } from './context/UserContext';
-
 import Home from '../pages/Home';
 import About from '../pages/About';
 import Contact from '../pages/Contact';
@@ -11,13 +10,14 @@ import Houses from '../pages/Houses';
 import Services from '../pages/Services';
 import HouseDetails from '../pages/HouseDetails';
 import Login from './Login';
-import Admin from './Admin';
 import SignUp from './SignUp';
 import AddFavorite from './AddFavorite';
 import ProtectedRoute from './ProtectedRoute';
 import HouseForm from './HouseForm';
 import ReservatinAdmin from './ReservatinAdmin';
-import Dashboard from './Dashboard';
+import HousesAdmin from './housesAdmin';
+import Admin from './Admin';
+
 
 
 const Rou = () => {
@@ -31,18 +31,18 @@ const Rou = () => {
     return (
       <Routes>
          <Route
-          path="/Dashboard"
+          path="/Admin"
           element={
             <ProtectedRoute requiredRole="admin">
-              <Dashboard />
+              <Admin />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/admin"
+          path="/HousesAdmin"
           element={
             <ProtectedRoute requiredRole="admin">
-              <Admin />
+              <HousesAdmin />
             </ProtectedRoute>
           }
         />

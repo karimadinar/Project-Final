@@ -9,7 +9,6 @@ import {
 
 const HouseDetails = () => {
   const { id } = useParams();
-
   const [state, setState] = useState({
     house: null,
     error: null,
@@ -17,9 +16,7 @@ const HouseDetails = () => {
   });
 
   useEffect(() => {
-    if (id) {
-      fetchHouseDetails(id);
-    }
+    if (id) fetchHouseDetails(id);
   }, [id]);
 
   const fetchHouseDetails = async (id) => {
@@ -48,61 +45,56 @@ const HouseDetails = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header Section */}
       <div className="text-center mb-10 max-w-3xl mx-auto">
-        <h1 className="text-4xl font-extrabold text-gray-900 mb-2 lg:text-left">{house.type}</h1>
+        <h1 className="text-4xl font-extrabold text-gray-900 mb-2 lg:text-left">{house?.type || 'N/A'}</h1>
         <div className="flex justify-center items-center space-x-4 text-lg text-gray-600 lg:justify-start">
-          <span>{house.city}</span>
+          <span>{house?.city || 'N/A'}</span>
           <span>•</span>
-          <span>{house.area} sq.ft</span>
+          <span>{house?.area ? `${house.area} sq.ft` : 'N/A'}</span>
           <span>•</span>
-          <span>{house.bedrooms} {house.bedrooms > 1 ? 'Bedrooms' : 'Bedroom'}</span>
+          <span>{house?.bedrooms != null ? `${house.bedrooms} ${house.bedrooms > 1 ? 'Bedrooms' : 'Bedroom'}` : 'N/A'}</span>
         </div>
       </div>
 
-      {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* Left Column */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Main Image */}
-          {house.main_picture && (
-            <div className="rounded-xl overflow-hidden shadow-lg max-h-[480px]">
+          {house?.main_picture && (
+            <div className="rounded-xl overflow-hidden shadow-lg max-h-[380px]">
               <img src={house.main_picture} alt="Main" className="w-full h-full object-cover object-center" />
             </div>
           )}
 
-          {/* Additional Images */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[house.picture1, house.picture2, house.picture3].map((pic, i) =>
-              pic ? (
+            {[house?.picture1, house?.picture2, house?.picture3].map((pic, i) =>
+              pic && (
                 <div key={i} className="rounded-lg overflow-hidden shadow-md max-h-48">
                   <img src={pic} alt={`Picture ${i + 1}`} className="w-full h-full object-cover object-center" />
                 </div>
-              ) : null
+              )
             )}
           </div>
 
-          {/* Details Section */}
           <div className="bg-white rounded-xl shadow-md p-6 max-w-3xl mx-auto">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Property Details</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-              <DetailItem icon={<FaHome className="text-blue-500" />} label="Type" value={house.type} />
-              <DetailItem icon={<FaMapMarkerAlt className="text-green-500" />} label="City" value={house.city} />
-              <DetailItem icon={<FaExpand className="text-purple-500" />} label="Area" value={`${house.area} sq.ft`} />
-              <DetailItem icon={<FaDollarSign className="text-yellow-500" />} label="Price" value={`${house.price} MAD/month`} />
-              <DetailItem icon={<FaBed className="text-pink-500" />} label="Bedrooms" value={house.bedrooms} />
-              <DetailItem icon={<FaCheckCircle className="text-indigo-500" />} label="Amenities" value={house.amenities} />
-              <DetailItem icon={<FaUniversity className="text-teal-500" />} label="Nearby Universities" value={house.nearby_universities} />
-              <DetailItem icon={<FaRoute className="text-red-500" />} label="Distance to University" value={`${house.distance_to_university} km`} />
-              <DetailItem icon={<FaUsers className="text-orange-500" />} label="Shared" value={house.shared ? 'Yes' : 'No'} />
+              <DetailItem icon={<FaHome />} label="Type" value={house?.type || 'N/A'} />
+              <DetailItem icon={<FaMapMarkerAlt />} label="City" value={house?.city || 'N/A'} />
+              <DetailItem icon={<FaExpand />} label="Area" value={house?.area ? `${house.area} sq.ft` : 'N/A'} />
+              <DetailItem icon={<FaDollarSign />} label="Price" value={house?.price ? `${house.price} MAD/month` : 'N/A'} />
+              <DetailItem icon={<FaBed />} label="Bedrooms" value={house?.bedrooms != null ? house.bedrooms : 'N/A'} />
+              <DetailItem icon={<FaCheckCircle />} label="Amenities" value={Array.isArray(house?.amenities) ? house.amenities.join(', ') : 'N/A'} />
+              <DetailItem icon={<FaUniversity />} label="Nearby Universities" value={house?.nearby_universities || 'N/A'} />
+              <DetailItem icon={<FaRoute />} label="Distance to University" value={house?.distance_to_university ? `${house.distance_to_university} km` : 'N/A'} />
+              <DetailItem icon={<FaUsers />} label="Shared" value={house?.shared === true ? 'Yes' : house?.shared === false ? 'No' : 'N/A'} />
             </div>
           </div>
         </div>
 
-        {/* Right Column */}
         <div className="lg:col-span-1">
           <div className="sticky top-6">
-            <ReservationBox houseId={house._id} price={Number(house.price)} />
+            {house?._id && house?.price ? (
+              <ReservationBox houseId={house._id} price={Number(house.price)} />
+            ) : null}
           </div>
         </div>
       </div>
@@ -112,9 +104,10 @@ const HouseDetails = () => {
 
 const DetailItem = ({ icon, label, value }) => (
   <div className="flex items-start space-x-3">
-    <div className="text-xl">{icon}</div>
+    <div className="text-xl text-blue-500">{icon}</div>
     <div>
-      <span className="font-semibold">{label}:</span> <span>{value || 'N/A'}</span>
+      <div className="font-medium text-gray-800">{label}</div>
+      <div className="text-gray-600">{value}</div>
     </div>
   </div>
 );
